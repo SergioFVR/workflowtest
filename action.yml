@@ -1,0 +1,44 @@
+name: 'Upload to S3'
+description: 'Uploads artifacts to S3'
+inputs:
+  aws-access-key-id: 
+    description: 'AWS access key ID'
+    required: true
+    default: 'error'
+  aws-install-folder:
+    description: 'path to the aws executable'
+    required: true
+  aws-secret-access-key:
+    description: 'Path of assets to upload'
+    required: true
+  aws-region:
+    description: 'Path on Dropbox to place assets'
+    required: true
+    default: 'eu-west-2'
+  timestamp:
+    description: 'Flag to append dstPath with a timestamp'
+    required: false
+    default: 'false'
+  projectName:
+    description: 'Name of the project'
+    required: true
+    
+    
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ github.event.inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ github.event.inputs.aws-secret-access-key }}
+        aws-region: ${{ github.event.inputs.aws-region }}
+        
+    - name: Upload to S3
+          run: |-
+            "/c/Program Files/7-Zip/7z.exe" a -tzip C:/Data/Upload/../Build.zip C:/Data/Upload
+            FINAL_PATH="Builds/AutomatedBuilds/Develop/`date +%Y-%m`/${{ github.event.inputs.projectName }}/${{ github.event.inputs.projectName }}_`date +%Y-%m-%d_%H-%M`"
+            ${{ github.event.inputs.aws-install-folder }} s3 cp C:/Data/Upload/../Build.zip s3://fvr-automated-builds/$FINAL_PATH/Build-`date +%Y-%m`-${{ github.event.inputs.projectName }}.zip
+            rm -rf C:/Data/Upload/../Build.zip
+          shell: bash
+          
