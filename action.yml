@@ -5,14 +5,18 @@ inputs:
     description: 'AWS access key ID'
     required: true
     default: 'error'
-  aws-install-folder:
-    description: 'path to the aws executable'
+  aws-path:
+    description: 'Path to the aws executable'
     required: true
   aws-secret-access-key:
-    description: 'Path of assets to upload'
+    description: 'AWS secret access key'
     required: true
   aws-region:
-    description: 'Path on Dropbox to place assets'
+    description: 'Aws region'
+    required: true
+    default: 'eu-west-2'
+  s3-bucket:
+    description: 'S3 bucket name'
     required: true
     default: 'eu-west-2'
   timestamp:
@@ -22,6 +26,10 @@ inputs:
   projectName:
     description: 'Name of the project'
     required: true
+  build-path:
+    description: 'Path to the build'
+    required: true
+    default: 'C:/Data/Upload'
     
     
 runs:
@@ -36,9 +44,8 @@ runs:
         
     - name: Upload to S3
           run: |-
-            "/c/Program Files/7-Zip/7z.exe" a -tzip C:/Data/Upload/../Build.zip C:/Data/Upload
+            "/c/Program Files/7-Zip/7z.exe" a -tzip ${{ github.event.inputs.build-path }}/../Build.zip ${{ github.event.inputs.build-path }}
             FINAL_PATH="Builds/AutomatedBuilds/Develop/`date +%Y-%m`/${{ github.event.inputs.projectName }}/${{ github.event.inputs.projectName }}_`date +%Y-%m-%d_%H-%M`"
-            ${{ github.event.inputs.aws-install-folder }} s3 cp C:/Data/Upload/../Build.zip s3://fvr-automated-builds/$FINAL_PATH/Build-`date +%Y-%m`-${{ github.event.inputs.projectName }}.zip
-            rm -rf C:/Data/Upload/../Build.zip
+            ${{ github.event.inputs.aws-path }} s3 cp ${{ github.event.inputs.build-path }}/../Build.zip S3://${{ github.event.inputs.s3-bucket }}/$FINAL_PATH/Build-`date +%Y-%m`-${{ github.event.inputs.projectName }}.zip
+            rm -rf ${{ github.event.inputs.build-path }}/../Build.zip
           shell: bash
-          
