@@ -6,6 +6,7 @@ This is a sandbox repository for any workflow changes testing
 uses: SergioFVR/workflowtest@v0.1.0
     with:
       aws-access-key-id: 
+      aws-install-folder:
       aws-secret-access-key: 
       aws-region:
       timestamp:
